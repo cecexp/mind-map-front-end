@@ -4,10 +4,10 @@ import { MindMap, ApiResponse } from '../types';
 // Determine API base URL based on environment
 const getApiBaseUrl = () => {
     if (process.env.NODE_ENV === 'production') {
-        // In production (Vercel), use the current domain with /api prefix
-        return `${window.location.origin}/api`;
+        // En producción, usar la nueva URL del back-end en Vercel
+        return 'https://mind-map-back-end.vercel.app/api';
     } else {
-        // In development, use localhost
+        // En desarrollo, usar localhost
         return 'http://localhost:5000/api';
     }
 };
