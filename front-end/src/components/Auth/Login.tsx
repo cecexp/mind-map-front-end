@@ -173,8 +173,7 @@ const Login: React.FC<LoginProps> = ({ onSuccess, onSwitchToRegister }) => {
     setError('');
 
     console.log('🔐 Login form submitted:', {
-      username: formData.username,
-      hasTwoFactor: !!formData.twoFactorCode
+      username: formData.username
     });
 
     if (!formData.username.trim() || !formData.password.trim()) {
