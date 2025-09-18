@@ -171,11 +171,10 @@ class AuthService {
 
             const requestData = {
                 username,
-                password,
-                twoFactorCode
+                password
             };
 
-            console.log('📦 Login request data:', { username, twoFactorCode });
+            console.log('📦 Login request data:', { username });
 
             const response = await axios.post(`${API_BASE_URL}/auth/login`, requestData);
 
