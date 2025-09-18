@@ -4,7 +4,7 @@ const helmet = require('helmet');
 // Rate limiting for login attempts
 const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5, // Limit each IP to 5 requests per windowMs
+    max: process.env.NODE_ENV === 'development' ? 1000 : 5, // Allow 1000 attempts in development
     message: {
         success: false,
         message: 'Too many login attempts, please try again later.'
@@ -92,7 +92,9 @@ const sanitizeInput = (req, res, next) => {
 
 // CORS configuration
 const corsConfig = {
-    origin: true, // Allow all origins in development
+    origin: process.env.NODE_ENV === 'production'
+        ? 'https://mind-map-front-end.vercel.app' // Replace with your actual front-end domain
+        : true, // Allow all origins in development
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']

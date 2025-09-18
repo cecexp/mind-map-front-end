@@ -143,155 +143,154 @@ const TwoFactorTitle = styled.h3`
 `;
 
 interface LoginProps {
-    onSuccess: () => void;
-    onSwitchToRegister: () => void;
+  onSuccess: () => void;
+  onSwitchToRegister: () => void;
 }
 
 const Login: React.FC<LoginProps> = ({ onSuccess, onSwitchToRegister }) => {
-    const { checkAuthStatus } = useUser();
-    const [formData, setFormData] = useState({
-        username: '',
-        password: '',
-        twoFactorCode: ''
+  const { checkAuthStatus } = useUser();
+  const [formData, setFormData] = useState({
+    username: '',
+    password: ''
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  // Removed two-factor state
+  const [testStatus, setTestStatus] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
+    console.log('🔐 Login form submitted:', {
+      username: formData.username,
+      hasTwoFactor: !!formData.twoFactorCode
     });
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [showTwoFactor, setShowTwoFactor] = useState(false);
-    const [testStatus, setTestStatus] = useState('');
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    };
+    if (!formData.username.trim() || !formData.password.trim()) {
+      setError('Please fill in all required fields');
+      setIsLoading(false);
+      return;
+    }
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsLoading(true);
-        setError('');
+    try {
+      console.log('📞 Calling authService.login...');
+      const result = await authService.login(
+        formData.username,
+        formData.password
+      );
 
-        console.log('🔐 Login form submitted:', {
-            username: formData.username,
-            hasTwoFactor: !!formData.twoFactorCode
-        });
+      console.log('📞 Login result received:', result);
 
-        if (!formData.username.trim() || !formData.password.trim()) {
-            setError('Please fill in all required fields');
-            setIsLoading(false);
-            return;
-        }
+      if (result.success) {
+        console.log('✅ Login successful, checking auth status...');
+        // Trigger a re-check of auth status to update the context
+        await checkAuthStatus();
+        console.log('✅ Auth status checked, calling onSuccess...');
+        onSuccess();
+      } else {
+        console.log('❌ Login failed:', result.message);
+        setError(result.message || 'Invalid username or password');
+      }
+    } catch (error: any) {
+      console.error('❌ Login error caught:', error);
+      if (error.response?.data?.message) {
+        setError(error.response.data.message);
+      } else if (error.message) {
+        setError(`Error: ${error.message}`);
+      } else {
+        setError('❌ Network error. Please check your connection and try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-        try {
-            console.log('📞 Calling authService.login...');
-            const result = await authService.login(
-                formData.username,
-                formData.password,
-                formData.twoFactorCode || undefined
-            );
+  return (
+    <AuthContainer>
+      <AuthCard>
+        <AuthTitle>Welcome Back</AuthTitle>
 
-            console.log('📞 Login result received:', result);
+        {error && <ErrorMessage>{error}</ErrorMessage>}
 
-            if (result.success) {
-                console.log('✅ Login successful, checking auth status...');
-                // Trigger a re-check of auth status to update the context
-                await checkAuthStatus();
-                console.log('✅ Auth status checked, calling onSuccess...');
-                onSuccess();
-            } else if (result.requiresTwoFactor) {
-                console.log('🔐 Two factor required');
-                setShowTwoFactor(true);
-                setError('');
-            } else {
-                console.log('❌ Login failed:', result.message);
-                setError(result.message || 'Invalid username or password');
-            }
-        } catch (error: any) {
-            console.error('❌ Login error caught:', error);
-            if (error.response?.data?.message) {
-                setError(error.response.data.message);
-            } else if (error.message) {
-                setError(`Error: ${error.message}`);
-            } else {
-                setError('❌ Network error. Please check your connection and try again.');
-            }
-        } finally {
-            setIsLoading(false);
-        }
-    };
+        <AuthForm onSubmit={handleSubmit}>
+          <FormGroup>
+            <Label htmlFor="username">Username or Email</Label>
+            <Input
+              type="text"
+              id="username"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              placeholder="Enter your username or email"
+              required
+              hasError={!!error}
+            />
+          </FormGroup>
 
-    return (
-        <AuthContainer>
-            <AuthCard>
-                <AuthTitle>Welcome Back</AuthTitle>
+          <FormGroup style={{ position: 'relative' }}>
+            <Label htmlFor="password">Password</Label>
+            <Input
+              type={showPassword ? 'text' : 'password'}
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Enter your password"
+              required
+              hasError={!!error}
+              style={{ paddingRight: '2.5rem' }}
+            />
+            <button
+              type="button"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              onClick={() => setShowPassword(prev => !prev)}
+              style={{
+                position: 'absolute',
+                right: '0.75rem',
+                top: '2.2rem',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: 0
+              }}
+            >
+              {showPassword ? (
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.06 10.06 0 0 1 12 20c-5 0-9.27-3.11-10.44-7.5a10.05 10.05 0 0 1 2.13-3.36" /><path d="M1 1l22 22" /><path d="M9.53 9.53A3.5 3.5 0 0 0 12 15.5c1.93 0 3.5-1.57 3.5-3.5a3.5 3.5 0 0 0-5.97-2.47" /></svg>
+              ) : (
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12C2.73 7.11 7.11 3 12 3s9.27 4.11 11 9c-1.73 4.89-6.11 9-11 9S2.73 16.89 1 12z" /><circle cx="12" cy="12" r="3" /></svg>
+              )}
+            </button>
+          </FormGroup>
 
-                {error && <ErrorMessage>{error}</ErrorMessage>}
+          {/* Two-factor authentication removed */}
 
-                <AuthForm onSubmit={handleSubmit}>
-                    <FormGroup>
-                        <Label htmlFor="username">Username or Email</Label>
-                        <Input
-                            type="text"
-                            id="username"
-                            name="username"
-                            value={formData.username}
-                            onChange={handleChange}
-                            placeholder="Enter your username or email"
-                            required
-                            hasError={!!error}
-                        />
-                    </FormGroup>
+          <SubmitButton type="submit" isLoading={isLoading} disabled={isLoading}>
+            {isLoading ? 'Signing in...' : 'Sign In'}
+          </SubmitButton>
 
-                    <FormGroup>
-                        <Label htmlFor="password">Password</Label>
-                        <Input
-                            type="password"
-                            id="password"
-                            name="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            placeholder="Enter your password"
-                            required
-                            hasError={!!error}
-                        />
-                    </FormGroup>
+          {testStatus && <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#f0f0f0', borderRadius: '4px' }}>{testStatus}</div>}
+        </AuthForm>
 
-                    {showTwoFactor && (
-                        <TwoFactorSection>
-                            <TwoFactorTitle>Two-Factor Authentication</TwoFactorTitle>
-                            <FormGroup>
-                                <Label htmlFor="twoFactorCode">Verification Code</Label>
-                                <Input
-                                    type="text"
-                                    id="twoFactorCode"
-                                    name="twoFactorCode"
-                                    value={formData.twoFactorCode}
-                                    onChange={handleChange}
-                                    placeholder="Enter 6-digit code from your authenticator app"
-                                    maxLength={6}
-                                    required
-                                />
-                            </FormGroup>
-                        </TwoFactorSection>
-                    )}
-
-                    <SubmitButton type="submit" isLoading={isLoading} disabled={isLoading}>
-                        {isLoading ? 'Signing in...' : 'Sign In'}
-                    </SubmitButton>
-
-                    {testStatus && <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#f0f0f0', borderRadius: '4px' }}>{testStatus}</div>}
-                </AuthForm>
-
-                <AuthLink>
-                    Don't have an account?{' '}
-                    <a href="#" onClick={(e) => { e.preventDefault(); onSwitchToRegister(); }}>
-                        Sign up here
-                    </a>
-                </AuthLink>
-            </AuthCard>
-        </AuthContainer>
-    );
+        <AuthLink>
+          Don't have an account?{' '}
+          <a href="#" onClick={(e) => { e.preventDefault(); onSwitchToRegister(); }}>
+            Sign up here
+          </a>
+        </AuthLink>
+      </AuthCard>
+    </AuthContainer>
+  );
 };
 
 export default Login;
