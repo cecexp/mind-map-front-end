@@ -412,9 +412,9 @@ const Register: React.FC<RegisterProps> = ({ onSuccess, onSwitchToLogin }) => {
                             }}
                         >
                             {showPassword ? (
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.06 10.06 0 0 1 12 20c-5 0-9.27-3.11-10.44-7.5a10.05 10.05 0 0 1 2.13-3.36"/><path d="M1 1l22 22"/><path d="M9.53 9.53A3.5 3.5 0 0 0 12 15.5c1.93 0 3.5-1.57 3.5-3.5a3.5 3.5 0 0 0-5.97-2.47"/></svg>
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.06 10.06 0 0 1 12 20c-5 0-9.27-3.11-10.44-7.5a10.05 10.05 0 0 1 2.13-3.36" /><path d="M1 1l22 22" /><path d="M9.53 9.53A3.5 3.5 0 0 0 12 15.5c1.93 0 3.5-1.57 3.5-3.5a3.5 3.5 0 0 0-5.97-2.47" /></svg>
                             ) : (
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12C2.73 7.11 7.11 3 12 3s9.27 4.11 11 9c-1.73 4.89-6.11 9-11 9S2.73 16.89 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12C2.73 7.11 7.11 3 12 3s9.27 4.11 11 9c-1.73 4.89-6.11 9-11 9S2.73 16.89 1 12z" /><circle cx="12" cy="12" r="3" /></svg>
                             )}
                         </button>
 
@@ -473,9 +473,9 @@ const Register: React.FC<RegisterProps> = ({ onSuccess, onSwitchToLogin }) => {
                             }}
                         >
                             {showConfirmPassword ? (
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.06 10.06 0 0 1 12 20c-5 0-9.27-3.11-10.44-7.5a10.05 10.05 0 0 1 2.13-3.36"/><path d="M1 1l22 22"/><path d="M9.53 9.53A3.5 3.5 0 0 0 12 15.5c1.93 0 3.5-1.57 3.5-3.5a3.5 3.5 0 0 0-5.97-2.47"/></svg>
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.06 10.06 0 0 1 12 20c-5 0-9.27-3.11-10.44-7.5a10.05 10.05 0 0 1 2.13-3.36" /><path d="M1 1l22 22" /><path d="M9.53 9.53A3.5 3.5 0 0 0 12 15.5c1.93 0 3.5-1.57 3.5-3.5a3.5 3.5 0 0 0-5.97-2.47" /></svg>
                             ) : (
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12C2.73 7.11 7.11 3 12 3s9.27 4.11 11 9c-1.73 4.89-6.11 9-11 9S2.73 16.89 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12C2.73 7.11 7.11 3 12 3s9.27 4.11 11 9c-1.73 4.89-6.11 9-11 9S2.73 16.89 1 12z" /><circle cx="12" cy="12" r="3" /></svg>
                             )}
                         </button>
                     </FormGroup>
