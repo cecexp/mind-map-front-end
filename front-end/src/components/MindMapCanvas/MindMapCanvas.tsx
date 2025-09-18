@@ -100,6 +100,8 @@ const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
                 strokeWidth = 2;
             }
 
+            let touchStart = { x: 0, y: 0 };
+            let dragging = false;
             return (
                 <React.Fragment key={node.id}>
                     {/* Node background */}
@@ -115,7 +117,7 @@ const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
                         shadowColor="rgba(0, 0, 0, 0.1)"
                         shadowOffsetY={2}
                         shadowBlur={4}
-                        draggable={!connectionMode} // Disable dragging in connection mode
+                        draggable={!connectionMode}
                         onClick={() => onNodeSelect(node.id)}
                         onDragEnd={(e: any) => {
                             onNodeDrag(node.id, e.target.x(), e.target.y());
@@ -131,6 +133,26 @@ const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
                             if (container) {
                                 container.style.cursor = 'default';
                             }
+                        }}
+                        onTouchStart={(e: any) => {
+                            const touch = e.evt.touches[0];
+                            touchStart = { x: touch.clientX, y: touch.clientY };
+                            dragging = false;
+                        }}
+                        onTouchMove={(e: any) => {
+                            const touch = e.evt.touches[0];
+                            const dx = touch.clientX - touchStart.x;
+                            const dy = touch.clientY - touchStart.y;
+                            if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+                                dragging = true;
+                                onNodeDrag(node.id, node.x + dx, node.y + dy);
+                            }
+                        }}
+                        onTouchEnd={(e: any) => {
+                            if (!dragging) {
+                                onNodeSelect(node.id);
+                            }
+                            dragging = false;
                         }}
                     />
 
