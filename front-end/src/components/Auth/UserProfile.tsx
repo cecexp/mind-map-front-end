@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import authService, { User } from '../../services/authService';
+import { login, register, checkPasswordStrength } from '../../services/authService';
 
 const ProfileContainer = styled.div`
   background: white;

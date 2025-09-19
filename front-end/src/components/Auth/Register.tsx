@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import authService, { PasswordStrength } from '../../services/authService';
+import { register, checkPasswordStrength } from '../../services/authService';
 import { useUser } from '../../contexts/UserContext';
 
 const AuthContainer = styled.div`
