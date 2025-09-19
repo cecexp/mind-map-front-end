@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import authService from '../../services/authService';
+import { login, register, checkPasswordStrength } from '../../services/authService';
 import { useUser } from '../../contexts/UserContext';
 
 const AuthContainer = styled.div`
@@ -184,7 +184,7 @@ const Login: React.FC<LoginProps> = ({ onSuccess, onSwitchToRegister }) => {
 
     try {
       console.log('📞 Calling authService.login...');
-      const result = await authService.login(
+      const result = await login(
         formData.username,
         formData.password
       );
