@@ -1,11 +1,22 @@
 import { MindMap } from '../types';
-import authService from './authService';
+import { login, register, checkPasswordStrength } from './authService';
+
+// Utility to get current user from localStorage
+const getCurrentUser = (): { username?: string } | null => {
+    try {
+        const userStr = localStorage.getItem('user');
+        if (!userStr) return null;
+        return JSON.parse(userStr);
+    } catch {
+        return null;
+    }
+};
 
 const LOCAL_STORAGE_KEY_PREFIX = 'mindmaps_local_storage';
 
 // Get user-specific localStorage key
 const getUserStorageKey = (): string => {
-    const currentUser = authService.getCurrentUser();
+    const currentUser = getCurrentUser();
     // Use username instead of ID to ensure consistency across server restarts
     const userId = currentUser?.username || 'anonymous';
     const key = `${LOCAL_STORAGE_KEY_PREFIX}_${userId}`;
