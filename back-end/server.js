@@ -13,7 +13,8 @@ connectDB();
 
 // Security middleware
 app.use(helmetConfig);
-app.use(cors(corsConfig));
+app.use(cors(corsConfig)); // ✅ Aplica CORS globalmente
+app.options('*', cors(corsConfig)); // ✅ Maneja preflight (OPTIONS)
 app.use(apiLimiter);
 app.use(sanitizeInput);
 

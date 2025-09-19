@@ -92,7 +92,10 @@ const sanitizeInput = (req, res, next) => {
 
 // CORS configuration
 const corsConfig = {
-    origin: 'https://mind-map-front-end.vercel.app', // Always allow only your front-end domain
+    origin: process.env.NODE_ENV === 'production'
+        ? 'https://mind-mapping-weld.vercel.app' // ✅ CORRECTO
+        : true,
+
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
