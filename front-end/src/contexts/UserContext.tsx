@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import authService, { User } from '../services/authService';
+import { login, register, checkPasswordStrength } from '../services/authService';
+import { User } from '../types';
 import { localStorageService } from '../services/localStorage';
 
 interface UserContextType {

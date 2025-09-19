@@ -10,7 +10,8 @@ import { UserProvider, useUser } from './contexts/UserContext';
 import { MindMap, Node, Connection } from './types';
 import { mindMapApi } from './services/api';
 import localStorageService, { LocalMindMap } from './services/localStorage';
-import authService, { User } from './services/authService';
+import { login, register, checkPasswordStrength } from './services/authService';
+import { User } from './types';
 import {
   createNewNode,
   downloadJSON,
