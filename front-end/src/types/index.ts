@@ -1,3 +1,13 @@
+// User interface for authentication and profile
+export interface User {
+    _id?: string;
+    username: string;
+    email: string;
+    isEmailVerified?: boolean;
+    twoFactorEnabled?: boolean;
+    createdAt?: string;
+    updatedAt?: string;
+}
 export interface Node {
     id: string;
     text: string;

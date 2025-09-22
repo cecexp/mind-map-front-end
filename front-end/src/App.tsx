@@ -1,4 +1,32 @@
 import React, { useState, useEffect, useCallback } from 'react';
+
+// Undo/Redo history hook
+function useHistory<T>(initialState: T) {
+  const [history, setHistory] = useState<T[]>([initialState]);
+  const [pointer, setPointer] = useState(0);
+
+  const set = (newState: T) => {
+    const updated = history.slice(0, pointer + 1);
+    setHistory([...updated, newState]);
+    setPointer(updated.length);
+  };
+
+  const undo = () => {
+    if (pointer > 0) setPointer(pointer - 1);
+  };
+  const redo = () => {
+    if (pointer < history.length - 1) setPointer(pointer + 1);
+  };
+
+  return {
+    state: history[pointer],
+    set,
+    undo,
+    redo,
+    canUndo: pointer > 0,
+    canRedo: pointer < history.length - 1
+  };
+}
 import MindMapCanvas from './components/MindMapCanvas/MindMapCanvas';
 import MapListSidebar from './components/MapListSidebar/MapListSidebar';
 import NodeEditorPanel from './components/NodeEditor/NodeEditorPanel';
@@ -40,8 +68,12 @@ function AppContent() {
   const { user, logout } = useUser();
   // State management
   const [currentMap, setCurrentMap] = useState<MindMap | null>(null);
-  const [nodes, setNodes] = useState<Node[]>([]);
-  const [connections, setConnections] = useState<Connection[]>([]);
+  const nodesHistory = useHistory<Node[]>([]);
+  const connectionsHistory = useHistory<Connection[]>([]);
+  const nodes = nodesHistory.state;
+  const setNodes = nodesHistory.set;
+  const connections = connectionsHistory.state;
+  const setConnections = connectionsHistory.set;
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [maps, setMaps] = useState<MindMap[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -204,73 +236,58 @@ function AppContent() {
 
   const handleCanvasClick = useCallback((x: number, y: number) => {
     const newNode = createNewNode(x - 60, y - 20); // Center the node on click
-    setNodes(prev => [...prev, newNode]);
-  }, []);
+    setNodes([...nodes, newNode]);
+  }, [nodes, setNodes]);
 
   const handleAddNode = useCallback(() => {
-    // Add a node at the center of the visible area or at a default position
-    const canvasCenter = { x: 400, y: 300 }; // Default center position
+    const canvasCenter = { x: 400, y: 300 };
     const newNode = createNewNode(
-      canvasCenter.x + Math.random() * 100 - 50, // Add some randomness
+      canvasCenter.x + Math.random() * 100 - 50,
       canvasCenter.y + Math.random() * 100 - 50,
       'New Node'
     );
-    setNodes(prev => [...prev, newNode]);
-    setSelectedNodeId(newNode.id); // Select the newly created node
-  }, []);
+    setNodes([...nodes, newNode]);
+    setSelectedNodeId(newNode.id);
+  }, [nodes, setNodes]);
 
   const handleAddChildNode = useCallback(() => {
     if (!selectedNodeId) return;
-
     const parentNode = nodes.find(node => node.id === selectedNodeId);
     if (!parentNode) return;
-
-    // Calculate position for child node (below and to the right of parent)
     const existingChildren = findChildren(selectedNodeId, nodes);
     const childOffset = {
-      x: 150 + (existingChildren.length * 50), // Spread children horizontally
+      x: 150 + (existingChildren.length * 50),
       y: 80
     };
-
     const childNode = createChildNode(parentNode, childOffset, 'Child Node');
-    setNodes(prev => [...prev, childNode]);
-
-    // Auto-create connection between parent and child
+    setNodes([...nodes, childNode]);
     const newConnection: Connection = {
       from: selectedNodeId,
       to: childNode.id,
       type: 'parent-child'
     };
-    setConnections(prev => [...prev, newConnection]);
-
-    setSelectedNodeId(childNode.id); // Select the newly created child node
-  }, [selectedNodeId, nodes]);
+    setConnections([...connections, newConnection]);
+    setSelectedNodeId(childNode.id);
+  }, [selectedNodeId, nodes, connections, setNodes, setConnections]);
 
   const handleNodeSelect = useCallback((nodeId: string | null) => {
     if (connectionMode && nodeId) {
       if (!connectingFrom) {
-        // First node selected for connection
         setConnectingFrom(nodeId);
         setSelectedNodeId(nodeId);
       } else if (connectingFrom !== nodeId) {
-        // Second node selected, create connection
         const newConnection: Connection = {
           from: connectingFrom,
           to: nodeId,
           type: 'regular'
         };
-
-        // Check if connection already exists
         const exists = connections.some(conn =>
           (conn.from === connectingFrom && conn.to === nodeId) ||
           (conn.from === nodeId && conn.to === connectingFrom)
         );
-
         if (!exists) {
-          setConnections(prev => [...prev, newConnection]);
+          setConnections([...connections, newConnection]);
         }
-
-        // Exit connection mode
         setConnectionMode(false);
         setConnectingFrom(null);
         setSelectedNodeId(nodeId);
@@ -278,7 +295,7 @@ function AppContent() {
     } else {
       setSelectedNodeId(nodeId);
     }
-  }, [connectionMode, connectingFrom, connections]);
+  }, [connectionMode, connectingFrom, connections, setConnections]);
 
   const toggleConnectionMode = useCallback(() => {
     setConnectionMode(prev => !prev);
@@ -289,22 +306,22 @@ function AppContent() {
   }, [connectionMode]);
 
   const handleNodeDrag = useCallback((nodeId: string, x: number, y: number) => {
-    setNodes(prev => prev.map(node =>
+    setNodes(nodes.map(node =>
       node.id === nodeId ? { ...node, x, y } : node
     ));
-  }, []);
+  }, [nodes, setNodes]);
 
   const handleNodeUpdate = useCallback((nodeId: string, updates: Partial<Node>) => {
-    setNodes(prev => prev.map(node =>
+    setNodes(nodes.map(node =>
       node.id === nodeId ? { ...node, ...updates } : node
     ));
-  }, []);
+  }, [nodes, setNodes]);
 
   const handleNodeDelete = useCallback((nodeId: string) => {
-    setNodes(prev => prev.filter(node => node.id !== nodeId));
-    setConnections(prev => removeNodeConnections(nodeId, prev));
+    setNodes(nodes.filter(node => node.id !== nodeId));
+    setConnections(removeNodeConnections(nodeId, connections));
     setSelectedNodeId(null);
-  }, []);
+  }, [nodes, connections, setNodes, setConnections]);
 
   const handleExportJSON = () => {
     if (currentMap) {
@@ -376,6 +393,13 @@ function AppContent() {
       <Header data-export-hide>
         <HeaderTitle>🧠 Mind Map Studio</HeaderTitle>
         <HeaderActions>
+          {/* Undo/Redo Buttons */}
+          <Button onClick={nodesHistory.undo} disabled={!nodesHistory.canUndo}>
+            Undo
+          </Button>
+          <Button onClick={nodesHistory.redo} disabled={!nodesHistory.canRedo}>
+            Redo
+          </Button>
           {currentMap && (
             <>
               <span style={{ color: 'white', fontSize: '0.875rem' }}>
